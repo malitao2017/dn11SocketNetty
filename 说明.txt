@@ -1,0 +1,69 @@
+
+socket编程
+
+客户端：直接建立 socket套接字
+
+服务器：使用serviceSocket实例进行监听客户端连接，之后操作
+
+1.(BIO)同步阻塞式I/O，即一般的处理方式，有一个客户端连接就建立一个线程
+服务器端：tcp.ServerDemo 
+客户端：tcp.ClientDemo
+server.start();
+例子是 dn.tcp ,达内教程入门socket
+
+2.
+book中的内容来源于： dn11SocketNettyBook 
+jdk的socket基础一共四类：
+bio pio(伪异步I/O编程,增加线程池) nio aio（jdk1.7的NIO 2.0） 
+
+3.netty是nio的集成框架
+都在book下的netty包下
+basic是基础
+defualt是粘包解包问题
+correct是应用netty的多种编码器来解决
+之后的代码的意思是
+如：book.netty.n4delimiterC5P1
+n4表示书中代码出现的顺序，最后的C5P1（Chapter5Point1）表示书中的5.1章节，中间的表示书中源码的包名和意义
+
+
+
+
+项目中应用的是老版本的：
+oldNetty3（老版本3）
+
+公司使用的老版本是 3.2.1
+例子为：
+来源；
+http://blog.csdn.net/huaye2007/article/details/8187995#
+此文源码：
+http://download.csdn.net/download/huaye2007/4771179
+此文参考：
+http://blog.csdn.net/bearray123/article/details/6185368#reply
+
+是修改的代码
+package oldNetty3.com.example;MessageClient
+是例子
+package oldNetty3.com.test.netty;MessageClient
+是进行了性能测试
+package oldNetty3.org.jboss.netty.example.echo;EchoClient
+是jboss的源例
+
+以上三个对应： 
+oldNetty3.o2fix.f1basic;
+oldNetty3.o2fix.f2pressure;
+oldNetty3.o2fix.f3echo;
+
+源例：
+oldNetty3.o1source;
+
+
+案例中使用的是
+netty-3.5.10.Final
+
+本例使用项目中用的：
+netty-3.2.1.Final
+
+
+
+
+

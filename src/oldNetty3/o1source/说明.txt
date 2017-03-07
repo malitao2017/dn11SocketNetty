@@ -1,0 +1,21 @@
+http://blog.csdn.net/bearray123/article/details/6185368
+
+1、简介
+Java1.4提供了NIO使开发者可以使用Java编写高性能的服务端程序，但使用原生的NIO API就像Linux C中网络编程一样，还是需要做IO处理、协议处理等低层次工作。所以，就像C服务端程序大量使用libevent作为网络应用框架一样，Java社区也不断涌现出基于NIO的网络应用框架。在这其中，Jboss出品的Netty就是个中翘楚。Netty是个异步的事件驱动网络应用框架，具有高性能、高扩展性等特性。Netty提供了统一的底层协议接口，使得开发者从底层的网络协议（比如TCP/IP、UDP）中解脱出来。就使用来说，开发者只要参考 Netty提供的若干例子和它的指南文档，就可以放手开发基于Netty的服务端程序了。
+
+在Java社区，最知名的开源Java NIO框架要属Mina和Netty，而且两者渊源颇多，对两者的比较自然不少。实际上，Netty的作者原来就是Mina作者之一，所以可以想到，Netty和Mina在设计理念上会有很多共同点。我对Mina没什么研究，但其作者介绍，Netty的设计对开发者有更友好的扩展性，并且性能方面要优于Mina，而Netty完善的文档也很吸引人。所以，如果你在寻找Java NIO框架，Netty是个很不错的选择。本文的内容就是围绕一个demo介绍使用Netty的点点滴滴。
+
+2、服务端程序
+2.1、ChannelHandler
+服务端程序通常的处理过程是：解码请求数据、业务逻辑处理、编码响应。从框架角度来说，可以提供3个接口来控制并调度该处理过程；从更通用的角度来说，并不特化处理其中的每一步，而把每一步当做过滤器链中的一环，这也是Netty的做法。Netty对请求处理过程实现了过滤器链模式（ChannelPipeline），每个过滤器实现了ChannelHandler接口。Netty中有两种请求事件流类型也做了细分：
+
+1）downstream event：其对应的ChannelHandler子接口是ChannelDownstreamHandler。downstream event是说从头到尾执行ChannelPipeline中的ChannelDownstreamHandler，这一过程相当于向外发送数据的过程。 downstream event有：”write”、”bind”、”unbind”、 “connect”、 “disconnect”、”close”。
+
+2）upstream event：其对应的ChannelHandler子接口是ChannelUpstreamHandler。upstream event处理的事件方向和downstream event相反，这一过程相当于接收处理外来请求的过程。upstream event有：”messageReceived”、 “exceptionCaught”、”channelOpen”、”channelClosed”、 “channelBound”、”channelUnbound”、 “channelConnected”、”writeComplete”、”channelDisconnected”、”channelInterestChanged”。
+
+Netty中有个注释@interface ChannelPipelineCoverage，它表示被注释的ChannelHandler是否能添加到多个ChannelPipeline中，其可选的值是”all”和”one”。”all”表示ChannelHandler是无状态的，可被多个ChannelPipeline共享，而”one”表示ChannelHandler只作用于单个ChannelPipeline中。但ChannelPipelineCoverage只是个注释而已，并没有实际的检查作用。对于ChannelHandler是”all”还是”one”，还是根据逻辑需要而定。比如，像解码请求handler，因为可能解码的数据不完整，需要等待下一次读事件来了之后再继续解析，所以解码请求handler就需要是”one”的（否则多个Channel共享数据就乱了）。而像业务逻辑处理hanlder通常是”all”的。
+
+下面以一个简单的例子说明如何编写“解码请求数据、业务逻辑处理、编码响应”这一过程中涉及的ChannelHandler。该例子实现的协议格式很简单，请求和响应流中头4个字节表示后面跟的内容长度，根据该长度可得到内容体。
+
+首先看下解码器的实现：
+
